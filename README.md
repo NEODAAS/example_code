@@ -1,2 +1,3 @@
-# example_code
-Example code used for training and user support.
+# NEODAAS Example Code
+
+Example code used for NEODAAS training and user support.
