@@ -1,0 +1,53 @@
+# Start from NVIDIA CUDA container (Ubuntu 20.04)
+Bootstrap: docker
+From: nvcr.io/nvidia/cuda:11.3.1-cudnn8-runtime-ubuntu20.04
+
+%setup
+	# Copy environment file. Can also copy other scripts here
+	cp environment.yaml /tmp/
+
+%environment
+	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda-11.3/lib:/usr/local/cuda-11.3/lib64:/usr/local/cuda/compat
+	export PATH=/opt/miniconda/envs/tensorflow/bin:$PATH
+
+%post
+	# Set as non-interactve
+	export DEBIAN_FRONTEND=noninteractive
+
+	# Install some standard packages, including compilers
+	apt-get update && apt-get install -y  \
+	    apt-utils git curl vim unzip wget \
+	    build-essential 
+	
+	# Install cuda compatability library
+	apt-get install -y cuda-compat-11-3
+
+	# Create symlink for libcusolver, needed for tensorflow
+	cd /usr/local/cuda-11.3/lib64/ && \
+		ln -s libcusolver.so.11 libcusolver.so.10 && \
+		cd -
+
+	# Install miniconda
+	wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
+	    /bin/bash ~/miniconda.sh -b -p /opt/miniconda && \
+	    rm ~/miniconda.sh && \
+	    ln -s /opt/miniconda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
+	
+	# Set up and create new environment for packages
+	# Name of new environment from environment file is 'tensorflow'
+	. /opt/miniconda/etc/profile.d/conda.sh
+	conda activate base
+	conda env create -f /tmp/environment.yaml
+	conda activate tensorflow
+	conda clean --all -y
+	rm /tmp/environment.yaml
+
+%runscript
+	# Start python when calling with 'run' can also put path to script in here
+	/opt/miniconda/envs/tensorflow/bin/python
+
+%labels
+	Author neodaas-ai@pml.ac.uk
+
+%help
+	Basic demonstration container	
