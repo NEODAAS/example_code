@@ -20,8 +20,6 @@ To build the container use:
 sudo singularity build /tmp/basic_cuda_conda_singularity.sif basic_cuda_conda_singularity.def
 ```
 
-#### Notes for PML Internal ####
-
 Singularity containers need to be built with sudo but can be run without so you can build on your local workstation (where you have sudo) and run on a cluster (where you don't).
 
 Singularity containers cannot be built on networked drives, such as your home directory, so will need to be built to a local directory on your machine, such as `/tmp`
